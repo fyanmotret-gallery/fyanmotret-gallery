@@ -120,16 +120,37 @@
         <span id="alertText" class="text-sm font-bold">Teks tersalin!</span>
     </div>
 
-    <script>
-        const DEFAULT_TEMPLATE = "Halo [NAMA],\n\nBerikut adalah link galeri foto eksklusif Anda untuk proses seleksi:\n[LINK]\n\nSilakan klik link di atas. Jika ada pertanyaan, balas pesan ini ya. Terima kasih!";
+    
+<script>
+    const DEFAULT_TEMPLATE = "Halo [NAMA],\n\nBerikut adalah link galeri foto eksklusif Anda untuk proses seleksi:\n[LINK]\n\nSilakan klik link di atas. Jika ada pertanyaan, balas pesan ini ya. Terima kasih!";
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const portalUrl = "https://portalclienfyanmotret.vercel.app/";
-document.getElementById('baseUrl').value = portalUrl;
+    document.addEventListener("DOMContentLoaded", () => {
+        // Gunakan alamat portal online, bukan alamat file lokal
+        const portalUrl = "https://portalclienfyanmotret.vercel.app/";
+        document.getElementById("baseUrl").value = portalUrl;
 
-            const savedTemplate = localStorage.getItem('customWaTemplate');
-            if (savedTemplate) {
-                document.getElementById('waTemplate').value = savedTemplate;
+        // Memuat template WhatsApp yang tersimpan
+        const savedTemplate = localStorage.getItem("customWaTemplate");
+
+        if (savedTemplate) {
+            document.getElementById("waTemplate").value = savedTemplate;
+        } else {
+            document.getElementById("waTemplate").value = DEFAULT_TEMPLATE;
+        }
+    });
+
+    function saveTemplate() {
+        const currentText = document.getElementById("waTemplate").value;
+        localStorage.setItem("customWaTemplate", currentText);
+    }
+
+    function resetTemplate() {
+        document.getElementById("waTemplate").value = DEFAULT_TEMPLATE;
+        localStorage.removeItem("customWaTemplate");
+        showAlert("Format pesan dikembalikan ke standar.");
+    }
+</script>
+
             } else {
                 document.getElementById('waTemplate').value = DEFAULT_TEMPLATE;
             }
