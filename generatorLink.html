@@ -189,7 +189,7 @@
             }
             
             if (document.getElementById('protCheck').checked) params.push('prot=1');
-            if (document.getElementById('wmCheck').checked) params.push('wm=1');
+            if (document.getElementById('wmCheck').checked) params.push('wm=0');
 
             params.push(`i=${folderId}`);
             finalUrl += '?' + params.join('&');
