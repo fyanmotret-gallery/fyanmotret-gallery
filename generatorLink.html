@@ -79,7 +79,7 @@
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer">
                         <input type="checkbox" id="wmCheck" checked class="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500">
-                        <span class="text-sm font-medium text-slate-700"></span>
+                        <span class="text-sm font-medium text-slate-700">Tampilkan watermark pada galeri</span>
                     </label>
                 </div>
             </div>
@@ -120,157 +120,118 @@
         <span id="alertText" class="text-sm font-bold">Teks tersalin!</span>
     </div>
 
-    
-<script>
-    const DEFAULT_TEMPLATE = "Halo [NAMA],\n\nBerikut adalah link galeri foto eksklusif Anda untuk proses seleksi:\n[LINK]\n\nSilakan klik link di atas. Jika ada pertanyaan, balas pesan ini ya. Terima kasih!";
+    <script>
+        const DEFAULT_TEMPLATE = "Halo [NAMA],\\n\\nBerikut adalah link galeri foto eksklusif Anda untuk proses seleksi:\\n[LINK]\\n\\nSilakan klik link di atas. Jika ada pertanyaan, balas pesan ini ya. Terima kasih!";
+        const PORTAL_URL = "https://portalclienfyanmotret.vercel.app/";
 
-    document.addEventListener("DOMContentLoaded", () => {
-        // Gunakan alamat portal online, bukan alamat file lokal
-        const portalUrl = "https://portalclienfyanmotret.vercel.app/";
-        document.getElementById("baseUrl").value = portalUrl;
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("baseUrl").value = PORTAL_URL;
 
-        // Memuat template WhatsApp yang tersimpan
-        const savedTemplate = localStorage.getItem("customWaTemplate");
-
-        if (savedTemplate) {
-            document.getElementById("waTemplate").value = savedTemplate;
-        } else {
-            document.getElementById("waTemplate").value = DEFAULT_TEMPLATE;
-        }
-    });
-
-    function saveTemplate() {
-        const currentText = document.getElementById("waTemplate").value;
-        localStorage.setItem("customWaTemplate", currentText);
-    }
-
-    function resetTemplate() {
-        document.getElementById("waTemplate").value = DEFAULT_TEMPLATE;
-        localStorage.removeItem("customWaTemplate");
-        showAlert("Format pesan dikembalikan ke standar.");
-    }
-</script>
-
-            } else {
-                document.getElementById('waTemplate').value = DEFAULT_TEMPLATE;
-            }
+            const savedTemplate = localStorage.getItem("customWaTemplate");
+            document.getElementById("waTemplate").value =
+                savedTemplate !== null ? savedTemplate : DEFAULT_TEMPLATE;
         });
 
         function saveTemplate() {
-            const currentText = document.getElementById('waTemplate').value;
-            localStorage.setItem('customWaTemplate', currentText);
+            localStorage.setItem("customWaTemplate", document.getElementById("waTemplate").value);
         }
 
         function resetTemplate() {
-            document.getElementById('waTemplate').value = DEFAULT_TEMPLATE;
-            localStorage.removeItem('customWaTemplate');
-            showAlert('Format pesan dikembalikan ke standar.');
+            document.getElementById("waTemplate").value = DEFAULT_TEMPLATE;
+            localStorage.removeItem("customWaTemplate");
+            showAlert("Format pesan dikembalikan ke standar.");
         }
 
         function showAlert(message, isError = false) {
-            const alertBox = document.getElementById('customAlert');
-            const alertIcon = document.getElementById('alertIcon');
-            document.getElementById('alertText').textContent = message;
-            alertIcon.className = isError ? "fa-solid fa-triangle-exclamation text-red-400" : "fa-solid fa-circle-check text-green-400";
-            alertBox.classList.remove('-translate-y-32', 'opacity-0');
-            setTimeout(() => alertBox.classList.add('-translate-y-32', 'opacity-0'), 3000);
+            const alertBox = document.getElementById("customAlert");
+            const alertIcon = document.getElementById("alertIcon");
+            document.getElementById("alertText").textContent = message;
+            alertIcon.className = isError
+                ? "fa-solid fa-triangle-exclamation text-red-400"
+                : "fa-solid fa-circle-check text-green-400";
+            alertBox.classList.remove("-translate-y-32", "opacity-0");
+            setTimeout(() => alertBox.classList.add("-translate-y-32", "opacity-0"), 3000);
         }
 
         function extractFolderId(url) {
-            const match = url.match(/folders\/([a-zA-Z0-9-_]+)/);
+            const match = url.match(/folders\\/([a-zA-Z0-9_-]+)/);
             if (match && match[1]) return match[1];
-            const matchId = url.match(/id=([a-zA-Z0-9-_]+)/);
-            return matchId && matchId[1] ? matchId[1] : url; 
+            const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            return matchId && matchId[1] ? matchId[1] : "";
         }
 
         function generateLink() {
-            const baseUrl = document.getElementById('baseUrl').value.trim();
-            const clientName = document.getElementById('clientName').value.trim();
-            const clientPhone = document.getElementById('clientPhone').value.trim();
-            const driveLink = document.getElementById('driveLink').value.trim();
-            const kuota = document.getElementById('kuota').value.trim();
+            const clientName = document.getElementById("clientName").value.trim();
+            const clientPhone = document.getElementById("clientPhone").value.trim();
+            const driveLink = document.getElementById("driveLink").value.trim();
+            const kuota = document.getElementById("kuota").value.trim();
 
-            if (!driveLink) return alert('Link Google Drive wajib diisi!');
+            if (!driveLink) {
+                alert("Link Google Drive wajib diisi!");
+                return;
+            }
 
             const folderId = extractFolderId(driveLink);
-            if (!folderId) return showAlert('Link Google Drive tidak valid!', true);
-
-            let finalUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
-            let params = [];
-            
-            if (clientName !== "") {
-                const cleanName = clientName.replace(/\s+/g, '-');
-                params.push(`n=${encodeURIComponent(cleanName)}`);
+            if (!folderId) {
+                showAlert("Link Google Drive tidak valid. Gunakan link folder Google Drive.", true);
+                return;
             }
 
-            if (kuota && parseInt(kuota) > 0) {
-                const hashedKuota = btoa(kuota.toString()).replace(/=/g, '');
-                params.push(`k=${hashedKuota}`);
+            const params = new URLSearchParams();
+            if (clientName) params.set("n", clientName.replace(/\\s+/g, "-"));
+            if (kuota && Number.parseInt(kuota, 10) > 0) {
+                params.set("k", btoa(String(Number.parseInt(kuota, 10))).replace(/=+$/g, ""));
             }
-            
-            if (document.getElementById('protCheck').checked) params.push('prot=1');
-            if (document.getElementById('wmCheck').checked) params.push('wm=0');
+            if (document.getElementById("protCheck").checked) params.set("prot", "1");
+            params.set("wm", document.getElementById("wmCheck").checked ? "1" : "0");
+            params.set("i", folderId);
 
-            params.push(`i=${folderId}`);
-            finalUrl += '?' + params.join('&');
+            const finalUrl = PORTAL_URL + "?" + params.toString();
+            document.getElementById("resultBox").classList.remove("hidden");
+            document.getElementById("finalUrl").value = finalUrl;
 
-            document.getElementById('resultBox').classList.remove('hidden');
-            document.getElementById('finalUrl').value = finalUrl;
-
-            const btnSendWA = document.getElementById('btnSendWA');
-            if (clientPhone !== "") {
-                btnSendWA.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Kirim ke Klien';
-            } else {
-                btnSendWA.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Buka WhatsApp';
-            }
+            document.getElementById("btnSendWA").innerHTML = clientPhone
+                ? '<i class="fa-brands fa-whatsapp text-lg"></i> Kirim ke Klien'
+                : '<i class="fa-brands fa-whatsapp text-lg"></i> Buka WhatsApp';
         }
 
         function getMessageTemplate(name, link) {
-            let template = document.getElementById('waTemplate').value;
-            let displayName = name ? `Kak ${name}` : "Kakak";
-            return template.replace(/\[NAMA\]/g, displayName).replace(/\[LINK\]/g, link);
+            const template = document.getElementById("waTemplate").value;
+            const displayName = name ? `Kak ${name}` : "Kakak";
+            return template.replace(/\\[NAMA\\]/g, displayName).replace(/\\[LINK\\]/g, link);
         }
 
         function copyToClipboard() {
-            const finalUrl = document.getElementById('finalUrl').value;
-            const clientName = document.getElementById('clientName').value.trim();
-            
-            let messageToCopy = getMessageTemplate(clientName, finalUrl);
-            
+            const finalUrl = document.getElementById("finalUrl").value;
+            const clientName = document.getElementById("clientName").value.trim();
+            const messageToCopy = getMessageTemplate(clientName, finalUrl);
+
             navigator.clipboard.writeText(messageToCopy).then(() => {
-                showAlert('Teks pesan berhasil disalin!');
+                showAlert("Teks pesan berhasil disalin!");
             }).catch(() => {
                 const textArea = document.createElement("textarea");
                 textArea.value = messageToCopy;
                 document.body.appendChild(textArea);
                 textArea.select();
-                document.execCommand('copy');
+                document.execCommand("copy");
                 document.body.removeChild(textArea);
-                showAlert('Teks pesan berhasil disalin!');
+                showAlert("Teks pesan berhasil disalin!");
             });
         }
 
         function sendToClientWA() {
-            const finalUrl = document.getElementById('finalUrl').value;
-            const clientName = document.getElementById('clientName').value.trim();
-            
-            let rawPhone = document.getElementById('clientPhone').value.replace(/[^0-9]/g, ''); 
-            
-            let finalPhone = rawPhone;
-            if (finalPhone.startsWith('0')) {
-                finalPhone = '62' + finalPhone.substring(1);
-            }
+            const finalUrl = document.getElementById("finalUrl").value;
+            const clientName = document.getElementById("clientName").value.trim();
+            let finalPhone = document.getElementById("clientPhone").value.replace(/[^0-9]/g, "");
 
-            let message = getMessageTemplate(clientName, finalUrl);
-            let waUrl = '';
-            
-            if (finalPhone) {
-                waUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
-            } else {
-                waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
-            }
-            
-            window.open(waUrl, '_blank');
+            if (finalPhone.startsWith("0")) finalPhone = "62" + finalPhone.substring(1);
+
+            const message = getMessageTemplate(clientName, finalUrl);
+            const waUrl = finalPhone
+                ? `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`
+                : `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+
+            window.open(waUrl, "_blank");
         }
     </script>
 </body>
