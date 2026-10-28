@@ -121,7 +121,7 @@
     </div>
 
     <script>
-        const DEFAULT_TEMPLATE = "Halo [NAMA],\\n\\nBerikut adalah link galeri foto eksklusif Anda untuk proses seleksi:\\n[LINK]\\n\\nSilakan klik link di atas. Jika ada pertanyaan, balas pesan ini ya. Terima kasih!";
+        const DEFAULT_TEMPLATE = "Halo [NAMA],\n\nBerikut adalah link galeri foto eksklusif Anda untuk proses seleksi:\n[LINK]\n\nSilakan klik link di atas. Jika ada pertanyaan, balas pesan ini ya. Terima kasih!";
         const PORTAL_URL = "https://portalclienfyanmotret.vercel.app/";
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -154,7 +154,7 @@
         }
 
         function extractFolderId(url) {
-            const match = url.match(/folders\\/([a-zA-Z0-9_-]+)/);
+            const match = url.match(/folders\/([a-zA-Z0-9_-]+)/);
             if (match && match[1]) return match[1];
             const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
             return matchId && matchId[1] ? matchId[1] : "";
@@ -178,7 +178,7 @@
             }
 
             const params = new URLSearchParams();
-            if (clientName) params.set("n", clientName.replace(/\\s+/g, "-"));
+            if (clientName) params.set("n", clientName.replace(/\s+/g, "-"));
             if (kuota && Number.parseInt(kuota, 10) > 0) {
                 params.set("k", btoa(String(Number.parseInt(kuota, 10))).replace(/=+$/g, ""));
             }
@@ -198,7 +198,7 @@
         function getMessageTemplate(name, link) {
             const template = document.getElementById("waTemplate").value;
             const displayName = name ? `Kak ${name}` : "Kakak";
-            return template.replace(/\\[NAMA\\]/g, displayName).replace(/\\[LINK\\]/g, link);
+            return template.replace(/\[NAMA\]/g, displayName).replace(/\[LINK\]/g, link);
         }
 
         function copyToClipboard() {
