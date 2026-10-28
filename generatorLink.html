@@ -124,9 +124,8 @@
         const DEFAULT_TEMPLATE = "Halo [NAMA],\n\nBerikut adalah link galeri foto eksklusif Anda untuk proses seleksi:\n[LINK]\n\nSilakan klik link di atas. Jika ada pertanyaan, balas pesan ini ya. Terima kasih!";
 
         document.addEventListener("DOMContentLoaded", () => {
-            let currentUrl = window.location.href.split('?')[0].split('#')[0];
-            let portalUrl = currentUrl.includes("generatorLink.html") ? currentUrl.replace("generatorLink.html", "") : currentUrl.substring(0, currentUrl.lastIndexOf("/") + 1);
-            document.getElementById('baseUrl').value = portalUrl;
+            const portalUrl = "https://portalclienfyanmotret.vercel.app/";
+document.getElementById('baseUrl').value = portalUrl;
 
             const savedTemplate = localStorage.getItem('customWaTemplate');
             if (savedTemplate) {
